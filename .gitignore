@@ -1,3 +1,4 @@
 /vendor/
 /config/secured/
 /.idea/
+/PHP_errors.log

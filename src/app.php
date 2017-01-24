@@ -68,7 +68,8 @@ class vApp extends Application
         }
     }
     function AddTrip($region_id, $courier_id, $trip_departure){
-        $sql = "INSERT INTO `trips` VALUES (null, $region_id, $courier_id, $trip_departure);";
+        var_dump($trip_departure);
+        $sql = "INSERT INTO `trips` VALUES (null, $region_id, $courier_id, '$trip_departure');";
         if($this->IsTripAvailable($region_id, $courier_id, $trip_departure)){
             return $this->pdo->exec($sql);
         }
@@ -265,5 +266,8 @@ $app->get('/couriers.json', function () use ($app) {
 
 $app->get('/{courier_id}/trips.json', function (Silex\Application $app, $courier_id) {
     return $app->GetTripsJSON(array('courier_id' => $courier_id));
+});
+$app->post('/record.json', function() use ($app){
+    return $app->AddTrip($_POST['region_id'], $_POST['courier_id'], $_POST['trip_departure']);
 });
 return $app;

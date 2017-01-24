@@ -49,12 +49,13 @@
         );
         $('.add-trip').on('click', function () {
             region_id = $('.region').val();
-            departure = $('.departure').val();
+            courier_id = $('.courier').val();
+            trip_departure = $('.departure').val();
+            alert(trip_departure);
+            $.post( app_path + 'record.json', { region_id: region_id, courier_id: courier_id, trip_departure: trip_departure })
+                .done(function( data ) {
+                    alert( "Data Loaded: " + data );
+            });
         });
     });
 })(jQuery);
-
-
-// $('.trips-list .courier').on('change',
-
-// );

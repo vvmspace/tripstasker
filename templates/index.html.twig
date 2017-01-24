@@ -1,5 +1,12 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-    Welcome to your new Silex Application!
+    <select name="region" class="region">
+        <option selected disabled>Выберите регион</option>
+    </select>
+    <select name="courier" class="courier">
+        <option selected disabled>Выберите курьера</option>
+    </select>
+    <input type="date" name="departure" class="departure" />
+    <input type="button" name="add-trip" class="add-trip" value="Добавить поездку"/>
 {% endblock %}

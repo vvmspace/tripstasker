@@ -6,9 +6,10 @@ use Silex\Provider\TwigServiceProvider;
 use Silex\Provider\ServiceControllerServiceProvider;
 use Silex\Provider\HttpFragmentServiceProvider;
 
+// Создаём класс приложения на основе Silex Application
 class vApp extends Application
 {
-    public $pdo;
+    public $pdo; // соединение описывается в файле config/secured/db.php
 
     function __construct()
     {
@@ -24,9 +25,10 @@ class vApp extends Application
         });
     }
 
+    // Сброс таблиц в БД
     function Drop()
     {
-        $tables = array(
+        $tables = array( // список таблиц
             'couriers',
             'regions',
             'trips'
@@ -37,6 +39,7 @@ class vApp extends Application
         }
     }
 
+    // Проверка: Доступна ли поездка (id региона, id курьера, дата прибытия в регион)
     function IsTripAvailable($region_id, $courier_id, $trip_departure)
     {
         $sql = "SELECT * FROM
@@ -70,14 +73,16 @@ class vApp extends Application
         }
     }
 
+    // Добавление поездки (id региона, id курьера, дата прибытия в регион)
     function AddTrip($region_id, $courier_id, $trip_departure)
     {
         $sql = "INSERT INTO `trips` VALUES (null, $region_id, $courier_id, '$trip_departure');";
-        if ($this->IsTripAvailable($region_id, $courier_id, $trip_departure)) {
+        if ($this->IsTripAvailable($region_id, $courier_id, $trip_departure)) { // Проверка возможности поездки
             return $this->pdo->exec($sql);
         }
     }
 
+    // Получение списка доступных куьеров (id региона, дата прибытия в регион)
     function GetAvailableCouriers($region_id, $trip_departure)
     {
 
@@ -120,11 +125,12 @@ AND (NOT EXISTS(
         return $couriers;
     }
 
+    // Получение списка доступных куьеров в json (id региона, дата прибытия в регион)
     function GetAvailableCouriersJSON($region_id, $departure_date)
     {
         return json_encode($this->GetAvailableCouriers($region_id, $departure_date), JSON_UNESCAPED_UNICODE);
     }
-
+    // Создание таблиц
     function CreateTables()
     {
         $sql['couriers'] = "CREATE TABLE IF NOT EXISTS `couriers` (
@@ -149,7 +155,7 @@ AND (NOT EXISTS(
             $this->pdo->exec($query);
         }
     }
-
+    // Заполнение таблицы курьеров и регионов
     function CreateData()
     {
         $sql['regions'] = "INSERT INTO `regions` (`region_id`, `region_name`, `region_time`) VALUES
@@ -182,13 +188,7 @@ AND (NOT EXISTS(
         }
     }
 
-    function Generate()
-    {
-        $this->CreateTables();
-        $this->CreateData();
-
-    }
-
+    // Получение списка регионов
     function GetRegions()
     {
         $r_query = $this->pdo->query("SELECT * FROM `regions`");
@@ -202,11 +202,13 @@ AND (NOT EXISTS(
         return $regions;
     }
 
+    // Получение списка регионов в JSON
     function GetRegionsJSON()
     {
         return json_encode($this->GetRegions(), JSON_UNESCAPED_UNICODE);
     }
 
+    // Получение списка курьеров
     function GetCouriers()
     {
         $r_query = $this->pdo->query("SELECT * FROM `couriers`");
@@ -220,11 +222,13 @@ AND (NOT EXISTS(
         return $couriers;
     }
 
+    // Получение списка курьеров в JSON
     function GetCouriersJSON()
     {
         return json_encode($this->GetCouriers(), JSON_UNESCAPED_UNICODE);
     }
 
+    // Получение списка поездок
     function GetTrips($options = array())
     {
         $sql = "SELECT T.*, R.region_name, C.courier_fio FROM `trips` as T, `regions` as R, `couriers` as C WHERE (C.courier_id = T.courier_id AND R.region_id = T.region_id";
@@ -252,11 +256,13 @@ AND (NOT EXISTS(
         return $trips;
     }
 
+    // Получение списка поездок в JSON
     function GetTripsJSON($options = array())
     {
         return json_encode($this->GetTrips($options), JSON_UNESCAPED_UNICODE);
     }
 
+    // Заполнение таблица поездками с 2015 года
     function GenerateDemo()
     {
         $regions = $this->GetRegions();
@@ -264,45 +270,61 @@ AND (NOT EXISTS(
         $nowtime = time();
         for ($t = $inittime; $t <= $nowtime; $t += 24 * 60 * 60) {
             $d = date('Y-m-d', $t);
-            shuffle($regions);
+            shuffle($regions); // перемешиваем список регионов
             foreach ($regions as $region) {
                 $couriers = $this->GetAvailableCouriers($region['region_id'], $d);
                 if(!empty($couriers)){
-                    $k = array_rand($couriers);
+                    $k = array_rand($couriers); // получаем случайного курьера из доступных
                     $courier = $couriers[$k];
-                    $this->AddTrip($region['region_id'], $courier['courier_id'], $d);
+                    $this->AddTrip($region['region_id'], $courier['courier_id'], $d); // добавляем поездку
                 }
             }
         }
     }
 }
 
-$app = new vApp();
+$app = new vApp(); // создаём приложение из созданного ранее класса
+
+// ROUTING: в controllers.php осталась только главная страница
+
+// Первый запуск (не забудьте поправить/создать config/secured/db.php вида:
+//   $app->pdo = new PDO("mysql:host=ХОСТ;dbname=ИМЯ_БАЗЫ_ДАННЫХ;charset=utf8","ИМЯ_ПОЛЬЗОВАТЕЛЯ", "ПАРОЛЬ");
 $app->get('generate', function () use ($app) {
     $app->Drop();
-    $app->Generate();
+    $app->CreateTables();
+    $app->CreateData();
     $app->GenerateDemo();
     return $app['twig']->render('generate.html.twig', array());
 });
+
+// Список доступных курьеров в JSON для функции UpdateFreeCouriers() в web/js/app.js
 $app->get('/{region_id}/{departure_date}/couriers.json', function (Silex\Application $app, $region_id, $departure_date) {
     return $app->GetAvailableCouriersJSON($region_id, $departure_date);
 });
+
+// Список регионов в JSON
 $app->get('/regions.json', function () use ($app) {
     return $app->GetRegionsJSON();
 });
 
+// Список курьеров в JSON
 $app->get('/couriers.json', function () use ($app) {
     return $app->GetCouriersJSON();
 });
 
+// Список поездок для курьера в JSON (нужно доработать)
 $app->get('/{courier_id}/trips.json', function (Silex\Application $app, $courier_id) {
     return $app->GetTripsJSON(array('courier_id' => $courier_id));
 });
+
+// Список поездок за период
 $app->get('/{trips_from}/{trips_till}/trips.json', function (Silex\Application $app, $trips_from, $trips_till) {
     $options['from'] = $trips_from;
     $options['till'] = $trips_till;
     return $app->GetTripsJSON($options);
 });
+
+// Добавление поездок
 $app->post('/record.json', function () use ($app) {
     return $app->AddTrip($_POST['region_id'], $_POST['courier_id'], $_POST['trip_departure']);
 });

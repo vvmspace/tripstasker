@@ -1,4 +1,6 @@
 <?php
+
+// Подключаем конфигурацию БД
 require __DIR__.'/secured/db.php';
 
 // configure your app for the production environment

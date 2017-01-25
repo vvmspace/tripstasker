@@ -14,20 +14,6 @@
                 $('.add-trip .courier, .trips-list .courier').append('<option value=' + val.courier_id + '>' + val.courier_lastname + ' ' + val.courier_firstname + ' ' + val.courier_middlename + '</option>');
             });
         });
-        $('.courier').on('change',
-            function () {
-                $('.trips tbody').html('');
-                courier_id = $('.trips-list .courier option:selected').val();
-                json_path = app_path + courier_id + "/trips.json";
-                console.log(json_path); //yyyy-mm-dd
-                $.getJSON(json_path, function (data) {
-                    console.log(data);
-                    $.each(data, function (key, val) {
-                        $('.trips tbody').append('<tr><td>' + val.trip_id + '</td><td>' + val.region_name + '</td><td>' + val.trip_departure + '</td></tr>');
-                        console.log(val);
-                    });
-                });
-            });
         $('.region, .departure').on('change',
             function () {
                 $('.courier').html('<option selected disabled>Выберите курьера</option>');

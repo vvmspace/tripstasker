@@ -4,18 +4,27 @@
     <ul class="nav nav-tabs">
         <li><a href="#add-trip" data-toggle="tab">Добавить поездку</a></li>
         <li class="active"><a href="#trips" data-toggle="tab">Список поездок</a></li>
+        <li><a href="#about" data-toggle="tab">О приложении</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane" id="add-trip">
             <h2>Добавление поездки</h2>
-            <select name="region" class="region">
-                <option selected disabled>Выберите регион</option>
-            </select>
-            <select name="courier" class="courier">
-                <option selected disabled>Выберите курьера</option>
-            </select>
-            <input type="date" name="departure" class="departure"/>
-            <input type="button" name="add-trip" class="add-trip" value="Добавить поездку"/>
+            <div class="add-trip-form">
+                <select name="region" class="region">
+                    <option selected disabled>Выберите регион</option>
+                </select>
+                <select name="courier" class="courier">
+                    <option selected disabled>Выберите курьера</option>
+                </select>
+                <input type="date" name="departure" class="departure"/>
+                <input type="button" name="add-trip" class="add-trip" value="Добавить поездку"/>
+            </div>
+            <ol class="add-trip-description">
+                <li>Выберите регион</li>
+                <li>Выберите дату прибытия в регион</li>
+                <li>Список свободных курьеров обновляется при переключении даты и региона</li>
+                <li>Выберите курьера</li>
+            </ol>
         </div>
         <div class="tab-pane active" id="trips">
             <h2>Список поездок</h2>
@@ -29,6 +38,19 @@
                     <div class="region-name tlabel col-md-4 col-sm-4">Регион</div>
                     <div class="trip-departure tlabel col-md-4 col-sm-4">Дата прибытия в регион</div>
                 </div>
+            </div>
+        </div>
+        <div class="tab-pane" id="about">
+            <h2>О приложении</h2>
+            <div class="about-content">
+                <h3>Первый запуск</h3>
+                <p>Перед первым запуском Вам необходимо:</p>
+                <p>1.Создать/отредактировать файл <b>config/secured/db.php</b>:</p>
+                <blockquote>$app->pdo = new
+                    PDO("mysql:host=ХОСТ;dbname=ИМЯ_БАЗЫ_ДАННЫХ;charset=utf8","ИМЯ_ПОЛЬЗОВАТЕЛЯ", "ПАРОЛЬ");
+                </blockquote>
+                <p><i>Директория <b>config/secured</b> прописана в <b>.gitignore</b></i></p>
+                <p>2.Запустить генератор: <a href="/generate">/generate</a></p>
             </div>
         </div>
     </div>

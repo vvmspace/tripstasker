@@ -234,10 +234,10 @@ AND (NOT EXISTS(
         if ((!isset($options['show_previous'])) && (!isset($options['from'])) || (!isset($options['till']))) {
             $sql .= " AND T.trip_departure >= CURDATE()";
         }
-        if(isset($options['from'])){
+        if (isset($options['from'])) {
             $sql .= " AND T.trip_departure >= '{$options['from']}'";
         }
-        if(isset($options['till'])){
+        if (isset($options['till'])) {
             $sql .= " AND T.trip_departure <= '{$options['till']}'";
         }
         $sql .= ") ORDER BY trip_departure;";
@@ -256,12 +256,32 @@ AND (NOT EXISTS(
     {
         return json_encode($this->GetTrips($options), JSON_UNESCAPED_UNICODE);
     }
+
+    function GenerateDemo()
+    {
+        $regions = $this->GetRegions();
+        $inittime = strtotime('2015-01-01');
+        $nowtime = time();
+        for ($t = $inittime; $t <= $nowtime; $t += 24 * 60 * 60) {
+            $d = date('Y-m-d', $t);
+            shuffle($regions);
+            foreach ($regions as $region) {
+                $couriers = $this->GetAvailableCouriers($region['region_id'], $d);
+                if(!empty($couriers)){
+                    $k = array_rand($couriers);
+                    $courier = $couriers[$k];
+                    $this->AddTrip($region['region_id'], $courier['courier_id'], $d);
+                }
+            }
+        }
+    }
 }
 
 $app = new vApp();
 $app->get('generate', function () use ($app) {
     $app->Drop();
     $app->Generate();
+    $app->GenerateDemo();
     return $app['twig']->render('generate.html.twig', array());
 });
 $app->get('/{region_id}/{departure_date}/couriers.json', function (Silex\Application $app, $region_id, $departure_date) {

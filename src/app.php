@@ -240,7 +240,7 @@ AND (NOT EXISTS(
         if(isset($options['till'])){
             $sql .= " AND T.trip_departure <= '{$options['till']}'";
         }
-        $sql .= ");";
+        $sql .= ") ORDER BY trip_departure;";
         $t_query = $this->pdo->query($sql);
         $trips = array();
         while ($t_fetch = $t_query->fetch()) {
@@ -262,7 +262,7 @@ $app = new vApp();
 $app->get('generate', function () use ($app) {
     $app->Drop();
     $app->Generate();
-    return 'Generating...';
+    return $app['twig']->render('generate.html.twig', array());
 });
 $app->get('/{region_id}/{departure_date}/couriers.json', function (Silex\Application $app, $region_id, $departure_date) {
     return $app->GetAvailableCouriersJSON($region_id, $departure_date);

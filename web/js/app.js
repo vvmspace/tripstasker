@@ -72,7 +72,13 @@
                     from = till;
                 }
                 $.getJSON(app_path + from + '/' + till + '/trips.json', function (data) {
-
+                    $.each(data, function(key, val){
+                        trip_sel = 'trip-' + val.trip_id;
+                        $('#trips .trips-wrapper').append('<div class="trip row ' + trip_sel+ '"></div>');
+                        $('.' + trip_sel).append('<div class="courier-fio col-md-4 col-sm-4">' + val.courier_fio + '</div>');
+                        $('.' + trip_sel).append('<div class="region-name col-md-4 col-sm-4">' + val.region_name + '</div>');
+                        $('.' + trip_sel).append('<div class="trip-departure col-md-4 col-sm-4">' + val.trip_departure + '</div>');
+                    });
                 });
             }
         }

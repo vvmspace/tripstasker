@@ -1,0 +1,9 @@
+#trips .dates{
+    margin-bottom: 15px;
+}
+#trips .dates input{
+    margin-left: 15px;
+}
+.tlabel{
+    font-weight: bold;
+}

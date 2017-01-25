@@ -36,7 +36,9 @@ class vApp extends Application
             $this->pdo->exec($sql);
         }
     }
-    function IsTripAvailable($region_id, $courier_id, $trip_departure){
+
+    function IsTripAvailable($region_id, $courier_id, $trip_departure)
+    {
         $sql = "SELECT * FROM
 	`trips` AS T,
 	`regions` AS R,
@@ -61,19 +63,21 @@ class vApp extends Application
 			)
 	)";
         $query = $this->pdo->query($sql);
-        if($res = $query->fetch()){
+        if ($res = $query->fetch()) {
             return false;
         } else {
             return true;
         }
     }
-    function AddTrip($region_id, $courier_id, $trip_departure){
-        var_dump($trip_departure);
+
+    function AddTrip($region_id, $courier_id, $trip_departure)
+    {
         $sql = "INSERT INTO `trips` VALUES (null, $region_id, $courier_id, '$trip_departure');";
-        if($this->IsTripAvailable($region_id, $courier_id, $trip_departure)){
+        if ($this->IsTripAvailable($region_id, $courier_id, $trip_departure)) {
             return $this->pdo->exec($sql);
         }
     }
+
     function GetAvailableCouriers($region_id, $trip_departure)
     {
 
@@ -227,14 +231,19 @@ AND (NOT EXISTS(
         if (isset($options['courier_id'])) {
             $sql .= " AND T.courier_id = {$options['courier_id']}";
         }
-        if (!isset($options['show_previous'])) {
-            $sql .= " AND T.trip_departure > CURDATE()";
+        if ((!isset($options['show_previous'])) && (!isset($options['from'])) || (!isset($options['till']))) {
+            $sql .= " AND T.trip_departure >= CURDATE()";
+        }
+        if(isset($options['from'])){
+            $sql .= " AND T.trip_departure >= '{$options['from']}'";
+        }
+        if(isset($options['till'])){
+            $sql .= " AND T.trip_departure <= '{$options['till']}'";
         }
         $sql .= ");";
         $t_query = $this->pdo->query($sql);
         $trips = array();
         while ($t_fetch = $t_query->fetch()) {
-            //var_dump($t_fetch);
             foreach (array('trip_id', 'region_id', 'courier_id', 'courier_fio', 'region_name', 'trip_departure',) as $key) {
                 $trip[$key] = $t_fetch[$key];
             }
@@ -242,7 +251,9 @@ AND (NOT EXISTS(
         }
         return $trips;
     }
-    function GetTripsJSON($options = array()){
+
+    function GetTripsJSON($options = array())
+    {
         return json_encode($this->GetTrips($options), JSON_UNESCAPED_UNICODE);
     }
 }
@@ -267,7 +278,12 @@ $app->get('/couriers.json', function () use ($app) {
 $app->get('/{courier_id}/trips.json', function (Silex\Application $app, $courier_id) {
     return $app->GetTripsJSON(array('courier_id' => $courier_id));
 });
-$app->post('/record.json', function() use ($app){
+$app->get('/{trips_from}/{trips_till}/trips.json', function (Silex\Application $app, $trips_from, $trips_till) {
+    $options['from'] = $trips_from;
+    $options['till'] = $trips_till;
+    return $app->GetTripsJSON($options);
+});
+$app->post('/record.json', function () use ($app) {
     return $app->AddTrip($_POST['region_id'], $_POST['courier_id'], $_POST['trip_departure']);
 });
 return $app;

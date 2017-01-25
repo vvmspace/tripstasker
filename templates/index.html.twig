@@ -1,12 +1,34 @@
 {% extends "layout.html.twig" %}
 
 {% block content %}
-    <select name="region" class="region">
-        <option selected disabled>Выберите регион</option>
-    </select>
-    <select name="courier" class="courier">
-        <option selected disabled>Выберите курьера</option>
-    </select>
-    <input type="date" name="departure" class="departure" />
-    <input type="button" name="add-trip" class="add-trip" value="Добавить поездку"/>
+    <ul class="nav nav-tabs">
+        <li><a href="#add-trip" data-toggle="tab">Добавить поездку</a></li>
+        <li class="active"><a href="#trips" data-toggle="tab">Список поездок</a></li>
+    </ul>
+    <div class="tab-content">
+        <div class="tab-pane" id="add-trip">
+            <h2>Добавление поездки</h2>
+            <select name="region" class="region">
+                <option selected disabled>Выберите регион</option>
+            </select><br/>
+            <select name="courier" class="courier">
+                <option selected disabled>Выберите курьера</option>
+            </select><br/>
+            <input type="date" name="departure" class="departure"/><br/>
+            <input type="button" name="add-trip" class="add-trip" value="Добавить поездку"/>
+        </div>
+        <div class="tab-pane active" id="trips">
+            <div class="dates row">
+                <input type="date" name="trips-from" class="trips-from"/>
+                <input type="date" name="trips-till" class="trips-till"/>
+            </div>
+            <div class="trips-wrapper">
+                <div class="trip row">
+                    <div class="courier-fio tlabel col-md-4 col-sm-4">ФИО курьера</div>
+                    <div class="region-name tlabel col-md-4 col-sm-4">Регион</div>
+                    <div class="trip-departure tlabel col-md-4 col-sm-4">Дата прибытия в регион</div>
+                </div>
+            </div>
+        </div>
+    </div>
 {% endblock %}

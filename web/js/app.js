@@ -4,7 +4,7 @@
         // Директория приложения (реализовано частично, нужно размещать в корне домена)
         app_path = '/';
 
-        // Список курьеров при запуске
+        // Список регионов при запуске
         $.getJSON("regions.json", function (data) {
             $.each(data, function (key, val) {
                 $('.region').append('<option value=' + val.region_id + '>' + val.region_name + '</option>');
@@ -20,23 +20,28 @@
             });
         });
 
-        // Обновление списка свободных курьеров
+        // Обновление списка свободных курьеров при переключении региона и даты прибытия
         $('.region, .departure').on('change',
             function () {
-                $('.courier').html('<option selected disabled>Выберите курьера</option>');
-                region_id = $('.region').val();
-                departure = $('.departure').val();
-                if (( region_id != null) && ( departure.length > 0)) {
-                    json_path = app_path + region_id + '/' + departure + '/couriers.json';
-                    $.getJSON(app_path + region_id + '/' + departure + '/couriers.json', function (data) {
-                        $('.courier').html('<option selected disabled>Выберите курьера</option>');
-                        $.each(data, function (key, val) {
-                            $('.courier').append('<option value=' + val.courier_id + '>' + val.courier_fio + '</option>');
-                        });
-                    });
-                }
+                UpdateFreeCouriers();
             }
         );
+
+        // Обновление списка свободных курьеров
+        function UpdateFreeCouriers() {
+            $('.courier').html('<option selected disabled>Выберите курьера</option>');
+            region_id = $('.region').val();
+            departure = $('.departure').val();
+            if (( region_id != null) && ( departure.length > 0)) {
+                json_path = app_path + region_id + '/' + departure + '/couriers.json';
+                $.getJSON(app_path + region_id + '/' + departure + '/couriers.json', function (data) {
+                    $('.courier').html('<option selected disabled>Выберите курьера</option>');
+                    $.each(data, function (key, val) {
+                        $('.courier').append('<option value=' + val.courier_id + '>' + val.courier_fio + '</option>');
+                    });
+                });
+            }
+        }
 
         // Добавление поездки
         $('.add-trip').on('click', function () {
@@ -48,7 +53,7 @@
             // то подставляем дату поездки
             from = $('#trips .trips-from').val();
             till = $('#trips .trips-till').val();
-            if((from.length < 1) || (till.length < 1)){
+            if ((from.length < 1) || (till.length < 1)) {
                 $('#trips .trips-from').val(trip_departure);
                 $('#trips .trips-till').val(trip_departure);
             }

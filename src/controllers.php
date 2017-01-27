@@ -22,7 +22,7 @@ $app->get('generate', function () use ($app) {
 
 // Список доступных курьеров в JSON для функции UpdateFreeCouriers() в web/js/app.js
 $app->get('/{region_id}/{departure_date}/couriers.json', function (Silex\Application $app, $region_id, $departure_date) {
-    return $app->GetAvailableCouriersJSON($region_id, $departure_date);
+    return $app->GetAvailableCouriersJSON(intval($region_id), $app->DateValidate($departure_date));
 });
 
 // Список регионов в JSON
@@ -37,13 +37,13 @@ $app->get('/couriers.json', function () use ($app) {
 
 // Список поездок для курьера в JSON (нужно доработать)
 $app->get('/{courier_id}/trips.json', function (Silex\Application $app, $courier_id) {
-    return $app->GetTripsJSON(array('courier_id' => $courier_id));
+    return $app->GetTripsJSON(array('courier_id' => intval($courier_id)));
 });
 
 // Список поездок за период
 $app->get('/{trips_from}/{trips_till}/trips.json', function (Silex\Application $app, $trips_from, $trips_till) {
-    $options['from'] = $trips_from;
-    $options['till'] = $trips_till;
+    $options['from'] = $app->DateValidate($trips_from);
+    $options['till'] = $app->DateValidate($trips_till);
     return $app->GetTripsJSON($options);
 });
 

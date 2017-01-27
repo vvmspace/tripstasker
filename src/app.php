@@ -287,6 +287,9 @@ AND (NOT EXISTS(
         $app->CreateData();
         $app->GenerateDemo();
     }
+    public function DateValidate($date){
+        return date('Y-m-d', strtotime($date));
+    }
 }
 
 $app = new vApp(); // создаём приложение из созданного ранее класса
